@@ -41,7 +41,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Intro Screen */
+        /* Simple Intro Animation Screen */
         #intro-screen {
             position: fixed;
             inset: 0;
@@ -51,7 +51,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s ease;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
         }
 
         #intro-screen.fade-out {
@@ -64,77 +64,39 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            position: relative;
+            animation: introPop 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes introPop {
+            0% { opacity: 0; transform: scale(0.9) translateY(10px); }
+            50% { opacity: 1; transform: scale(1) translateY(0); }
+            85% { opacity: 1; transform: scale(1) translateY(0); }
+            100% { opacity: 0; transform: scale(1.05) translateY(-10px); }
         }
 
         .akatsuki-cloud-svg {
-            width: 90px;
-            height: 60px;
-            margin-bottom: 20px;
-            animation: cloudScale 4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes cloudScale {
-            0% { transform: scale(0.6); opacity: 0; }
-            20% { transform: scale(1); opacity: 1; }
-            80% { transform: scale(1.05); opacity: 1; }
-            100% { transform: scale(1.1); opacity: 0; }
+            width: 80px;
+            height: 50px;
+            margin-bottom: 16px;
         }
 
         .intro-title {
             font-family: 'Cinzel', serif;
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 900;
             color: var(--akatsuki-red);
             text-transform: uppercase;
-            letter-spacing: 6px;
-            margin-bottom: 6px;
-            animation: titleFade 4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes titleFade {
-            0% { opacity: 0; transform: translateY(8px); }
-            20% { opacity: 1; transform: translateY(0); }
-            80% { opacity: 1; }
-            100% { opacity: 0; }
+            letter-spacing: 5px;
+            margin-bottom: 4px;
         }
 
         .intro-sub {
-            font-family: 'Cinzel', serif;
+            font-family: 'JetBrains Mono', monospace;
             font-size: 11px;
             font-weight: 600;
             color: #666666;
             text-transform: uppercase;
-            letter-spacing: 4px;
-            margin-bottom: 30px;
-            animation: subFade 4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes subFade {
-            0% { opacity: 0; }
-            25% { opacity: 1; }
-            80% { opacity: 1; }
-            100% { opacity: 0; }
-        }
-
-        .intro-loader-bar {
-            width: 160px;
-            height: 2px;
-            background: #111111;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .intro-loader-progress {
-            width: 0%;
-            height: 100%;
-            background: var(--akatsuki-red);
-            animation: fillProgress 3.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-
-        @keyframes fillProgress {
-            0% { width: 0%; }
-            100% { width: 100%; }
+            letter-spacing: 3px;
         }
 
         .container {
@@ -587,7 +549,7 @@
 </head>
 <body>
 
-    <!-- Intro Screen -->
+    <!-- Simple Intro Screen Animation (No Loading Bar) -->
     <div id="intro-screen">
         <div class="intro-content">
             <svg class="akatsuki-cloud-svg" viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -599,9 +561,6 @@
             </svg>
             <h1 class="intro-title">Xypherza</h1>
             <p class="intro-sub">Script Hub</p>
-            <div class="intro-loader-bar">
-                <div class="intro-loader-progress"></div>
-            </div>
         </div>
     </div>
 
@@ -614,7 +573,7 @@
             </div>
             <div class="version-badge">
                 <i class="fa-solid fa-code"></i>
-                <span>v2.5 Live</span>
+                <span>v2.6 Live</span>
             </div>
         </header>
 
@@ -708,10 +667,9 @@
             </div>
         </section>
 
-        <!-- Scripts Section (Dynamically Loaded) -->
+        <!-- Scripts Section (Dynamically Loaded from scripts.json) -->
         <section id="content-scripts" class="hidden" style="width: 100%;">
             <div id="scripts-container" class="scripts-list">
-                <!-- Scripts will load here automatically -->
                 <div class="script-rect-card" style="justify-content: center; color: var(--text-sub); font-family: 'JetBrains Mono', monospace; font-size: 12px;">
                     Loading live scripts...
                 </div>
@@ -780,14 +738,15 @@
 
     <script>
         window.addEventListener('DOMContentLoaded', () => {
+            // Automatically hide simple intro animation after 1.1 seconds
             setTimeout(() => {
                 const intro = document.getElementById('intro-screen');
                 if (intro) {
                     intro.classList.add('fade-out');
                 }
-            }, 4000);
+            }, 1100);
 
-            // Fetch scripts dynamically from scripts.json
+            // Fetch live scripts from scripts.json
             loadScripts();
         });
 
@@ -816,7 +775,7 @@
                     container.appendChild(card);
                 });
             } catch (error) {
-                container.innerHTML = `<div class="script-rect-card" style="color: #cc0000; font-size: 12px;">Failed to load live scripts.</div>`;
+                container.innerHTML = `<div class="script-rect-card" style="color: #cc0000; font-size: 12px;">Failed to load live scripts. Check scripts.json file name.</div>`;
             }
         }
 
