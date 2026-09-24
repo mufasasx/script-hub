@@ -8,8 +8,3 @@
         "code": "loadstring(game:HttpGet(\"https://raw.githubusercontent.com/mufasasx/Gakuran-Hub/refs/heads/main/keyless\"))()"
     }
 ]
-{
-        "title": "Gakuan - Hub | Keyless",
-        "code": "loadstring(game:HttpGet(\"https://raw.githubusercontent.com/mufasasx/Gakuran-Hub/refs/heads/main/keyless\"))()"
-    }
-]
