@@ -549,7 +549,7 @@
 </head>
 <body>
 
-    <!-- Simple Intro Screen Animation (No Loading Bar) -->
+    <!-- Simple Intro Screen Animation -->
     <div id="intro-screen">
         <div class="intro-content">
             <svg class="akatsuki-cloud-svg" viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -643,7 +643,6 @@
                     <i class="fa-solid fa-arrow-up-right-from-square link-arrow"></i>
                 </a>
 
-                <!-- Updated Discord Link -->
                 <a href="https://discord.gg/rk3Tm2yJZ" target="_blank" rel="noopener noreferrer" class="glass-card link-card">
                     <div class="link-left">
                         <div class="icon-box"><i class="fa-brands fa-discord"></i></div>
@@ -668,7 +667,7 @@
             </div>
         </section>
 
-        <!-- Scripts Section (Dynamically Loaded from scripts.json) -->
+        <!-- Scripts Section -->
         <section id="content-scripts" class="hidden" style="width: 100%;">
             <div id="scripts-container" class="scripts-list">
                 <div class="script-rect-card" style="justify-content: center; color: var(--text-sub); font-family: 'JetBrains Mono', monospace; font-size: 12px;">
@@ -739,7 +738,6 @@
 
     <script>
         window.addEventListener('DOMContentLoaded', () => {
-            // Automatically hide simple intro animation after 1.1 seconds
             setTimeout(() => {
                 const intro = document.getElementById('intro-screen');
                 if (intro) {
@@ -747,14 +745,13 @@
                 }
             }, 1100);
 
-            // Fetch live scripts from scripts.json
             loadScripts();
         });
 
         async function loadScripts() {
             const container = document.getElementById('scripts-container');
             try {
-                const response = await fetch('scripts.json?' + new Date().getTime()); // Cache-buster
+                const response = await fetch('scripts.json?' + new Date().getTime());
                 const scripts = await response.json();
                 
                 container.innerHTML = '';
@@ -763,16 +760,31 @@
                     const card = document.createElement('div');
                     card.className = 'script-rect-card';
                     
-                    card.innerHTML = `
-                        <div class="script-info">
-                            <div class="script-rect-title">${script.title}</div>
-                            <div class="script-rect-code">${script.code}</div>
-                        </div>
-                        <button onclick="copyScript('${script.code.replace(/'/g, "\\'")}')" class="btn-copy-direct">
-                            <i class="fa-solid fa-copy"></i>
-                            <span>Copy</span>
-                        </button>
-                    `;
+                    const infoDiv = document.createElement('div');
+                    infoDiv.className = 'script-info';
+                    
+                    const titleDiv = document.createElement('div');
+                    titleDiv.className = 'script-rect-title';
+                    titleDiv.textContent = script.title;
+                    
+                    const codeDiv = document.createElement('div');
+                    codeDiv.className = 'script-rect-code';
+                    codeDiv.textContent = script.code;
+                    
+                    infoDiv.appendChild(titleDiv);
+                    infoDiv.appendChild(codeDiv);
+                    
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'btn-copy-direct';
+                    copyBtn.innerHTML = `<i class="fa-solid fa-copy"></i><span>Copy</span>`;
+                    
+                    // Safe event handler binding to prevent quote breaks or uncopyable code errors
+                    copyBtn.addEventListener('click', () => {
+                        copyScript(script.code);
+                    });
+                    
+                    card.appendChild(infoDiv);
+                    card.appendChild(copyBtn);
                     container.appendChild(card);
                 });
             } catch (error) {
@@ -804,17 +816,32 @@
         }
 
         function copyScript(text) {
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(text).then(() => showToast("Copied script"));
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast("Copied script");
+                }).catch(err => {
+                    fallbackCopy(text);
+                });
             } else {
-                const input = document.createElement('textarea');
-                input.value = text;
-                document.body.appendChild(input);
-                input.select();
-                document.execCommand('copy');
-                document.body.removeChild(input);
-                showToast("Copied script");
+                fallbackCopy(text);
             }
+        }
+
+        function fallbackCopy(text) {
+            const input = document.createElement('textarea');
+            input.value = text;
+            input.style.position = 'fixed';
+            input.style.opacity = '0';
+            document.body.appendChild(input);
+            input.focus();
+            input.select();
+            try {
+                document.execCommand('copy');
+                showToast("Copied script");
+            } catch (err) {
+                showToast("Failed to copy");
+            }
+            document.body.removeChild(input);
         }
     </script>
 </body>
