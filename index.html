@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xypherza - Script Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-dark: #000000;
+            --bg-card: #0c0c0c;
+            --akatsuki-red: #cc0000;
+            --akatsuki-dark-red: #800000;
+            --cloud-border: #330000;
+            --text-main: #f0f0f0;
+            --text-sub: #888888;
+            --glass-bg: rgba(12, 12, 12, 0.95);
+            --glass-border: rgba(204, 0, 0, 0.25);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+        }
+
+        body {
+            background: #000000;
+            min-height: 100vh;
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 12px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Intro Screen */
+        #intro-screen {
+            position: fixed;
+            inset: 0;
+            background: #000000;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s ease;
+        }
+
+        #intro-screen.fade-out {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .intro-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .akatsuki-cloud-svg {
+            width: 90px;
+            height: 60px;
+            margin-bottom: 20px;
+            animation: cloudScale 4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes cloudScale {
+            0% { transform: scale(0.6); opacity: 0; }
+            20% { transform: scale(1); opacity: 1; }
+            80% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1.1); opacity: 0; }
+        }
+
+        .intro-title {
+            font-family: 'Cinzel', serif;
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--akatsuki-red);
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            margin-bottom: 6px;
+            animation: titleFade 4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes titleFade {
+            0% { opacity: 0; transform: translateY(8px); }
+            20% { opacity: 1; transform: translateY(0); }
+            80% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .intro-sub {
+            font-family: 'Cinzel', serif;
+            font-size: 11px;
+            font-weight: 600;
+            color: #666666;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 30px;
+            animation: subFade 4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes subFade {
+            0% { opacity: 0; }
+            25% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .intro-loader-bar {
+            width: 160px;
+            height: 2px;
+            background: #111111;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .intro-loader-progress {
+            width: 0%;
+            height: 100%;
+            background: var(--akatsuki-red);
+            animation: fillProgress 3.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes fillProgress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--card-shadow);
+            border-radius: 12px;
+            width: 100%;
+        }
+
+        .header-bar {
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-dot-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--akatsuki-red);
+            border-radius: 50%;
+        }
+
+        .domain-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--akatsuki-red);
+            letter-spacing: 0.5px;
+        }
+
+        .version-badge {
+            background-color: rgba(204, 0, 0, 0.1);
+            border: 1px solid var(--cloud-border);
+            color: var(--akatsuki-red);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .tab-nav {
+            padding: 4px;
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 440px;
+            border-radius: 10px;
+            background: #080808;
+            border: 1px solid rgba(255, 0, 0, 0.15);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: none;
+            background: transparent;
+            color: var(--text-sub);
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .tab-btn.active {
+            background-color: var(--akatsuki-red);
+            color: #ffffff;
+        }
+
+        .profile-card {
+            padding: 24px 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .avatar-container {
+            position: relative;
+            margin-bottom: 14px;
+        }
+
+        .avatar-ring {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            padding: 2px;
+            background: var(--akatsuki-red);
+            border: 1px solid var(--cloud-border);
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid #000000;
+        }
+
+        .profile-name-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 2px;
+        }
+
+        .profile-title {
+            font-family: 'Cinzel', serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 2px;
+        }
+
+        .verified-badge {
+            background: rgba(204, 0, 0, 0.15);
+            color: var(--akatsuki-red);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--cloud-border);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .profile-handle {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--akatsuki-red);
+            margin-bottom: 12px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .profile-bio {
+            font-size: 13px;
+            color: var(--text-sub);
+            line-height: 1.5;
+            max-width: 480px;
+            margin-bottom: 16px;
+        }
+
+        .tags-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .tag-pill {
+            background: #080808;
+            color: #aaaaaa;
+            border: 1px solid #222222;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .grid-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .link-card {
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            color: inherit;
+            transition: border-color 0.2s ease;
+            cursor: pointer;
+            border: 1px solid var(--glass-border);
+        }
+
+        .link-card:hover {
+            border-color: var(--akatsuki-red);
+        }
+
+        .link-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon-box {
+            width: 38px;
+            height: 38px;
+            border-radius: 6px;
+            background-color: rgba(204, 0, 0, 0.1);
+            color: var(--akatsuki-red);
+            border: 1px solid var(--cloud-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .link-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .link-sub {
+            font-size: 11px;
+            color: var(--text-sub);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .link-arrow {
+            color: var(--akatsuki-red);
+            font-size: 11px;
+        }
+
+        .scripts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .script-rect-card {
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            background: var(--glass-bg);
+        }
+
+        .script-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow: hidden;
+        }
+
+        .script-rect-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .script-rect-code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-sub);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-copy-direct {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: none;
+            background: var(--akatsuki-red);
+            color: white;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            font-family: inherit;
+            transition: background 0.2s ease;
+        }
+
+        .btn-copy-direct:hover {
+            background: var(--akatsuki-dark-red);
+        }
+
+        .executors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .executor-card {
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            background: var(--glass-bg);
+        }
+
+        .executor-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 8px;
+            margin-bottom: 4px;
+        }
+
+        .executor-desc {
+            font-size: 11px;
+            color: var(--text-sub);
+            line-height: 1.4;
+            margin-bottom: 14px;
+        }
+
+        .btn-action-secondary {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid var(--cloud-border);
+            background: rgba(204, 0, 0, 0.1);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            font-family: inherit;
+            transition: background 0.2s ease;
+        }
+
+        .btn-action-secondary:hover {
+            background: rgba(204, 0, 0, 0.2);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-body {
+            background: #080808;
+            border-radius: 8px;
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid var(--cloud-border);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .btn-close {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            background: rgba(204, 0, 0, 0.15);
+            color: var(--akatsuki-red);
+            border: 1px solid var(--cloud-border);
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #0a0a0a;
+            border: 1px solid var(--akatsuki-red);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.25s ease;
+            z-index: 1000;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Intro Screen -->
+    <div id="intro-screen">
+        <div class="intro-content">
+            <svg class="akatsuki-cloud-svg" viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M 30 45 C 15 45 10 33 22 25 C 18 12 35 8 45 16 C 55 5 75 8 78 22 C 90 20 95 35 82 45 Z" 
+                      fill="#cc0000" 
+                      stroke="#ffffff" 
+                      stroke-width="2.5" 
+                      stroke-linejoin="round" />
+            </svg>
+            <h1 class="intro-title">Xypherza</h1>
+            <p class="intro-sub">Script Hub</p>
+            <div class="intro-loader-bar">
+                <div class="intro-loader-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <header class="glass-card header-bar">
+            <div class="status-dot-container">
+                <div class="status-dot"></div>
+                <span class="domain-text">xypherza.netlify.app</span>
+            </div>
+            <div class="version-badge">
+                <i class="fa-solid fa-code"></i>
+                <span>v2.5 Live</span>
+            </div>
+        </header>
+
+        <nav class="glass-card tab-nav">
+            <button onclick="switchTab('home')" id="tab-home" class="tab-btn active">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </button>
+            <button onclick="switchTab('scripts')" id="tab-scripts" class="tab-btn">
+                <i class="fa-solid fa-scroll"></i>
+                <span>Scripts</span>
+            </button>
+            <button onclick="switchTab('executors')" id="tab-executors" class="tab-btn">
+                <i class="fa-solid fa-terminal"></i>
+                <span>Executors</span>
+            </button>
+        </nav>
+
+        <section id="content-home" style="width: 100%;">
+            <div class="glass-card profile-card">
+                <div class="avatar-container">
+                    <div class="avatar-ring">
+                        <img src="https://images.genggi.com/profiles/xypherza/0fde0c50-dfc7-4588-b537-edd18810de92" 
+                             alt="Xypherza Avatar" 
+                             onerror="this.onerror=null; this.src='https://placehold.co/150x150/000000/cc0000?text=Xypherza';"
+                             class="avatar-img">
+                    </div>
+                </div>
+
+                <div class="profile-name-row">
+                    <h1 class="profile-title">Xypherza</h1>
+                    <span class="verified-badge">Dev</span>
+                </div>
+                <p class="profile-handle">Nicoh (@Xypherza)</p>
+                
+                <p class="profile-bio">
+                    Roblox Lua scripts, custom web development, and interface layouts.
+                </p>
+
+                <div class="tags-row">
+                    <span class="tag-pill"><i class="fa-solid fa-code"></i> developer</span>
+                    <span class="tag-pill"><i class="fa-solid fa-gamepad"></i> roblox</span>
+                    <span class="tag-pill"><i class="fa-solid fa-file-code"></i> lua</span>
+                </div>
+            </div>
+
+            <div class="grid-links">
+                <a href="https://www.tiktok.com/@Xypherza._" target="_blank" rel="noopener noreferrer" class="glass-card link-card">
+                    <div class="link-left">
+                        <div class="icon-box"><i class="fa-brands fa-tiktok"></i></div>
+                        <div>
+                            <div class="link-title">TikTok Profile</div>
+                            <div class="link-sub">@Xypherza._</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-arrow-up-right-from-square link-arrow"></i>
+                </a>
+
+                <a href="https://www.youtube.com/@Xypherza" target="_blank" rel="noopener noreferrer" class="glass-card link-card">
+                    <div class="link-left">
+                        <div class="icon-box"><i class="fa-brands fa-youtube"></i></div>
+                        <div>
+                            <div class="link-title">YouTube Channel</div>
+                            <div class="link-sub">@Xypherza</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-arrow-up-right-from-square link-arrow"></i>
+                </a>
+
+                <a href="https://github.com/mufasasx" target="_blank" rel="noopener noreferrer" class="glass-card link-card">
+                    <div class="link-left">
+                        <div class="icon-box"><i class="fa-brands fa-github"></i></div>
+                        <div>
+                            <div class="link-title">GitHub Projects</div>
+                            <div class="link-sub">github.com/mufasasx</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-arrow-up-right-from-square link-arrow"></i>
+                </a>
+
+                <div onclick="openRobloxModal()" class="glass-card link-card">
+                    <div class="link-left">
+                        <div class="icon-box"><i class="fa-solid fa-user-gear"></i></div>
+                        <div>
+                            <div class="link-title">Roblox Profiles</div>
+                            <div class="link-sub">Select profile</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right link-arrow"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scripts Section (Dynamically Loaded) -->
+        <section id="content-scripts" class="hidden" style="width: 100%;">
+            <div id="scripts-container" class="scripts-list">
+                <!-- Scripts will load here automatically -->
+                <div class="script-rect-card" style="justify-content: center; color: var(--text-sub); font-family: 'JetBrains Mono', monospace; font-size: 12px;">
+                    Loading live scripts...
+                </div>
+            </div>
+        </section>
+
+        <section id="content-executors" class="hidden" style="width: 100%;">
+            <div class="executors-grid">
+                <div class="executor-card">
+                    <div class="icon-box" style="width: 42px; height: 42px; font-weight: 900; font-size: 18px;">Δ</div>
+                    <h3 class="executor-title">Delta Executor</h3>
+                    <span class="verified-badge" style="margin-bottom: 8px;">Android / iOS</span>
+                    <p class="executor-desc">Mobile execution platform for Roblox scripts.</p>
+                    <a href="https://delta.filenetwork.vip/android.html" target="_blank" rel="noopener noreferrer" class="btn-action-secondary">Get Delta</a>
+                </div>
+
+                <div class="executor-card">
+                    <div class="icon-box" style="width: 42px; height: 42px; font-weight: 900; font-size: 16px;">AX</div>
+                    <h3 class="executor-title">Arceus X Neo</h3>
+                    <span class="verified-badge" style="margin-bottom: 8px;">Android / iOS</span>
+                    <p class="executor-desc">Mobile script environment with wide compatibility.</p>
+                    <a href="https://spdmteam.com/neo" target="_blank" rel="noopener noreferrer" class="btn-action-secondary">Get Arceus X Neo</a>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <div id="roblox-modal" class="modal-overlay">
+        <div class="modal-body">
+            <div class="modal-header">
+                <h3 style="font-size: 14px; font-weight: 700; color: #ffffff;"><i class="fa-solid fa-user-gear" style="color: var(--akatsuki-red);"></i> Select Profile</h3>
+                <button onclick="closeRobloxModal()" class="btn-close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p style="font-size: 11px; color: var(--text-sub); margin-bottom: 14px;">Roblox Account profile links:</p>
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
+                <a href="https://www.roblox.com/users/1902153100/profile?friendshipSourceType=PlayerSearch" target="_blank" rel="noopener noreferrer" class="link-card" style="border-radius: 6px; background: #000000;">
+                    <div class="link-left">
+                        <div class="icon-box" style="border-radius: 50%;">M</div>
+                        <div>
+                            <div class="link-title">Main Account</div>
+                            <div class="link-sub">ID: 1902153100</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-arrow-right link-arrow"></i>
+                </a>
+                <a href="https://www.roblox.com/users/11671192293/profile" target="_blank" rel="noopener noreferrer" class="link-card" style="border-radius: 6px; background: #000000;">
+                    <div class="link-left">
+                        <div class="icon-box" style="border-radius: 50%;">S</div>
+                        <div>
+                            <div class="link-title">Secondary Account</div>
+                            <div class="link-sub">ID: 11671192293</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-arrow-right link-arrow"></i>
+                </a>
+            </div>
+            <button onclick="closeRobloxModal()" class="btn-action-secondary">Cancel</button>
+        </div>
+    </div>
+
+    <div id="toast-message" class="toast">
+        <i class="fa-solid fa-circle-check" style="color: var(--akatsuki-red); font-size: 14px;"></i>
+        <span id="toast-text">Copied to clipboard</span>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const intro = document.getElementById('intro-screen');
+                if (intro) {
+                    intro.classList.add('fade-out');
+                }
+            }, 4000);
+
+            // Fetch scripts dynamically from scripts.json
+            loadScripts();
+        });
+
+        async function loadScripts() {
+            const container = document.getElementById('scripts-container');
+            try {
+                const response = await fetch('scripts.json?' + new Date().getTime()); // Cache-buster
+                const scripts = await response.json();
+                
+                container.innerHTML = '';
+                
+                scripts.forEach(script => {
+                    const card = document.createElement('div');
+                    card.className = 'script-rect-card';
+                    
+                    card.innerHTML = `
+                        <div class="script-info">
+                            <div class="script-rect-title">${script.title}</div>
+                            <div class="script-rect-code">${script.code}</div>
+                        </div>
+                        <button onclick="copyScript('${script.code.replace(/'/g, "\\'")}')" class="btn-copy-direct">
+                            <i class="fa-solid fa-copy"></i>
+                            <span>Copy</span>
+                        </button>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                container.innerHTML = `<div class="script-rect-card" style="color: #cc0000; font-size: 12px;">Failed to load live scripts.</div>`;
+            }
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('section').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        function openRobloxModal() { 
+            document.getElementById('roblox-modal').classList.add('open'); 
+        }
+        
+        function closeRobloxModal() { 
+            document.getElementById('roblox-modal').classList.remove('open'); 
+        }
+
+        function showToast(text) {
+            const toast = document.getElementById('toast-message');
+            document.getElementById('toast-text').textContent = text;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        function copyScript(text) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => showToast("Copied script"));
+            } else {
+                const input = document.createElement('textarea');
+                input.value = text;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+                showToast("Copied script");
+            }
+        }
+    </script>
+</body>
+</html>
